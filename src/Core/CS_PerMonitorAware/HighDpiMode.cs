@@ -77,11 +77,28 @@ namespace PerMonitorAware
                     break;
             }
 
-            if (!SetProcessDpiAwarenessContext(dpiFlag))
+            try
             {
-                return false;
+                if (!SetProcessDpiAwarenessContext(dpiFlag))
+                {
+                    return false;
+                }
             }
-
+            catch (Exception)
+            {
+                // We may be on 7 or 8, we just go for SystemAware or DpiUnaware.
+                switch (highDpiMode)
+                {
+                    case HighDpiMode.SystemAware:
+                    case HighDpiMode.PerMonitor:
+                    case HighDpiMode.PerMonitorV2:
+                        if (!SetProcessDPIAware())
+                        {
+                            return false;
+                        }
+                        break;
+                }
+            }
             return true;
         }
     }
@@ -95,3 +112,5 @@ namespace PerMonitorAware
         PerMonitorV2
     }
 }
+
+
